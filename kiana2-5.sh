@@ -4,7 +4,7 @@ set -euo pipefail
 # =========================================
 # 🚀 KIANA-2.5 FINAL SYNCED EDITION
 # ✅ XRAY + NGINX TIMEOUT SYNCED (3600s) — NO TIMEOUT ON SPEEDTEST
-# ✅ HEALTH CHECK ENDPOINT ADDED
+# ✅ HEALTH CHECK + DUAL LINKS DISPLAYED
 # ✅ NO PHONE OVERHEATING | LIGHTWEIGHT
 # ✅ SMOOTH STREAMING + FASTER DOWNLOAD
 # ✅ RECOMMENDED: 4Gi RAM + 4vCPU = BEST PERFORMANCE
@@ -308,31 +308,37 @@ gcloud run deploy $CLOUD_RUN_SERVICE_NAME \
   --timeout $TIMEOUT --min-instances $MIN_INST --max-instances $MAX_INST \
   --execution-environment gen2 --cpu-boost $BILLING_FLAGS --quiet
 
+# Kuha ang duha ka link
 CLOUD_RUN_URL=$(gcloud run services describe $CLOUD_RUN_SERVICE_NAME --project="$PROJECT_ID" --region="$REGION" --format='value(status.url)')
 DOMAIN=$(echo "$CLOUD_RUN_URL" | sed 's|https://||')
+FULL_DOMAIN=$(gcloud run services describe $CLOUD_RUN_SERVICE_NAME --project="$PROJECT_ID" --region="$REGION" --format='value(status.addresses[0].url)' | sed 's|https://||')
 
 echo -e "\n${CYAN}=========================================${NC}"
 echo -e "${GREEN}✅ FINAL VERSION — NO TIMEOUT + BEST PERFORMANCE${NC}"
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}Service:${NC} $CLOUD_RUN_SERVICE_NAME"
-echo -e "${GREEN}🔗 FULL LINK:${NC} https://$DOMAIN"
-echo -e "${GREEN}💚 HEALTH CHECK:${NC} https://$DOMAIN/health"
-echo -e "${GREEN}🌐 DOMAIN:${NC} $DOMAIN"
+echo -e "${GREEN}🔗 SHORT LINK:${NC} https://$DOMAIN"
+echo -e "${GREEN}🔗 FULL LINK:${NC} https://$FULL_DOMAIN"
+echo -e "${GREEN}💚 HEALTH CHECK:${NC} https://$FULL_DOMAIN/health"
+echo -e "${GREEN}🌐 DOMAIN (Same Working):${NC}"
+echo -e "$DOMAIN"
+echo -e "$FULL_DOMAIN"
 echo -e "${GREEN}Port:${NC} 443"
 echo -e "\n${YELLOW}--- RECOMMENDED SETTINGS ---${NC}"
+echo -e "${YELLOW}👉 BALANCED & SAFE: 2Gi RAM + 2vCPU + Instance-Based${NC}"
 echo -e "${YELLOW}👉 BEST PERFORMANCE: 4Gi RAM + 4vCPU + Instance-Based${NC}"
 echo -e "\n${YELLOW}--- CLIENT CONFIGS ---${NC}"
 echo -e "${GREEN}🔹 TROJAN + WS + TLS${NC}"
-echo "   Address: $DOMAIN"
+echo "   Address: $FULL_DOMAIN"
 echo "   Port: 443"
 echo "   Password: kiana-2"
 echo "   Path: /tr-ws"
-echo "   SNI: $DOMAIN"
+echo "   SNI: $FULL_DOMAIN"
 echo -e "\n${GREEN}🔹 VLESS + WS + TLS${NC}"
-echo "   Address: $DOMAIN"
+echo "   Address: $FULL_DOMAIN"
 echo "   Port: 443"
 echo "   UUID: a1b2c3d4-5678-40ef-98ab-cdef01234567"
 echo "   Path: /vl-ws"
-echo "   SNI: $DOMAIN"
+echo "   SNI: $FULL_DOMAIN"
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${YELLOW}💡 XRAY + NGINX TIMEOUT SYNCED | LIGHTWEIGHT | NO DISCONNECT${NC}"
