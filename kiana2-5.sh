@@ -124,11 +124,11 @@ cat > config.json <<'EOF'
       "port": 10001,
       "listen": "127.0.0.1",
       "protocol": "trojan",
-      "settings": { "clients": [{"password": "kiana-2", "level": 0}] },
+      "settings": { "clients": [{"password": "kiana-2.5", "level": 0}] },
       "sniffing": { "enabled": true, "destOverride": ["http","tls","quic"], "routeOnly": true },
       "streamSettings": {
         "network": "ws",
-        "wsSettings": { "path": "/tr-ws?ed=2560", "maxEarlyData": 1048576 },
+        "wsSettings": { "path": "/tr-ConFig?ed=2560", "maxEarlyData": 1048576 },
         "sockopt": {
           "tcpNoDelay": true,
           "tcpFastOpen": true,
@@ -148,7 +148,7 @@ cat > config.json <<'EOF'
       "sniffing": { "enabled": true, "destOverride": ["http","tls","quic"], "routeOnly": true },
       "streamSettings": {
         "network": "ws",
-        "wsSettings": { "path": "/vl-ws?ed=2560", "maxEarlyData": 1048576 },
+        "wsSettings": { "path": "/vl-ConFig?ed=2560", "maxEarlyData": 1048576 },
         "sockopt": {
           "tcpNoDelay": true,
           "tcpFastOpen": true,
@@ -238,7 +238,7 @@ http {
             proxy_ssl_protocols TLSv1.2 TLSv1.3;
         }
 
-        location /tr-ws {
+        location /tr-ConFig {
             proxy_pass http://127.0.0.1:10001;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection $connection_upgrade;
@@ -248,7 +248,7 @@ http {
             proxy_buffering off;
         }
 
-        location /vl-ws {
+        location /vl-ConFig {
             proxy_pass http://127.0.0.1:10002;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection $connection_upgrade;
