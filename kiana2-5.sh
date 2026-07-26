@@ -2,11 +2,11 @@
 set -euo pipefail
 
 # =========================================
-# 🚀 KIANA-2.6.3 FINAL | MANY REGIONS + NO MORE INVALID ERROR
-# ✅ 17 REGIONS TO CHOOSE
-# ✅ ROBUST INPUT HANDLING FOR MOBILE KEYBOARD
-# ✅ ALL SETTINGS FULLY WORKING
-# ✅ SYNCED TIMEOUT / LIGHTWEIGHT / NO OVERHEAT
+# 🚀 KIANA-2.6.5 | FULL SELECTIONS + MOBILE-FRIENDLY
+# ✅ ALL OPTIONS: REGION / MEMORY / CPU / BILLING / INSTANCES
+# ✅ NO MORE INFINITE ERROR LOOP
+# ✅ AUTO-CLEAN INPUT FOR MOBILE KEYBOARD
+# ✅ 100% CLOUD RUN COMPLIANT
 # ✅ CREDS: Pass=kiana-2.5 | UUID=a1b2c3d4-5678-40ef-98ab-cdef01234567
 # =========================================
 
@@ -28,7 +28,7 @@ clear
 echo ""
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}     TROJAN + VLESS WS/TLS${NC}"
-echo -e "${GREEN}     KIANA-2.6.3 FINAL EDITION${NC}"
+echo -e "${GREEN}     KIANA-2.6.5 FULL SELECT EDITION${NC}"
 echo -e "${CYAN}=========================================${NC}"
 echo ""
 
@@ -41,50 +41,35 @@ fi
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com --project="$PROJECT_ID" --quiet
 
 # =========================================
-# 🌏 FULL REGION LIST (17 OPTIONS)
+# 🌏 REGION SELECT (FULL LIST)
 # =========================================
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}        📌 SELECT DEPLOYMENT REGION${NC}"
 echo -e "${CYAN}=========================================${NC}"
-echo -e "${YELLOW}👉 Type NUMBER only, no extra spaces/letters${NC}"
+echo -e "${YELLOW}👉 Type NUMBER only, press ENTER. Auto default if wrong${NC}"
 echo ""
-echo -e "--- 🇺🇸 UNITED STATES ---"
-echo -e "0) us-central1      (Iowa, USA)       | Default / Stable"
+echo -e "0) us-central1      (Iowa, USA)       | Default"
 echo -e "1) us-east1         (South Carolina)"
 echo -e "2) us-east4         (North Virginia)"
 echo -e "3) us-west1         (Oregon, USA)"
 echo -e "4) us-west2         (Los Angeles, USA)"
-echo ""
-echo -e "--- 🇵🇭🇸🇬🇹🇼 ASIA PACIFIC (FASTEST FOR PH) ---"
-echo -e "5) asia-southeast1  (Singapore)       | ✅ #1 Fastest"
-echo -e "6) asia-southeast2  (Jakarta, Indonesia)"
-echo -e "7) asia-east1       (Taiwan)          | ✅ Very Fast"
+echo -e "5) asia-southeast1  (Singapore)       | ⚡ FASTEST PH"
+echo -e "6) asia-southeast2  (Jakarta)"
+echo -e "7) asia-east1       (Taiwan)          | ⚡ FAST PH"
 echo -e "8) asia-east2       (Hong Kong)"
-echo -e "9) asia-northeast1  (Tokyo, Japan)"
-echo -e "10) asia-northeast2 (Osaka, Japan)"
-echo -e "11) asia-northeast3 (Seoul, South Korea)"
-echo ""
-echo -e "--- 🇪🇺🌏 OTHERS ---"
+echo -e "9) asia-northeast1  (Tokyo)"
+echo -e "10) asia-northeast2 (Osaka)"
+echo -e "11) asia-northeast3 (Seoul)"
 echo -e "12) europe-west1    (Belgium)"
-echo -e "13) europe-west2    (London, UK)"
-echo -e "14) europe-west3    (Frankfurt, Germany)"
+echo -e "13) europe-west2    (London)"
+echo -e "14) europe-west3    (Frankfurt)"
 echo -e "15) europe-west4    (Netherlands)"
-echo -e "16) australia-southeast1 (Sydney, Australia)"
+echo -e "16) australia-southeast1 (Sydney)"
 echo ""
 
-# ✅ FIXED: TRIM ALL SPACES + STRICT VALIDATION
-while true; do
-    read -p "Enter Region Number [0-16]: " REG_SEL
-    REG_SEL=$(echo "$REG_SEL" | tr -d '[:space:]')
-    if [[ "$REG_SEL" =~ ^[0-9]+$ ]] && [ "$REG_SEL" -ge 0 ] && [ "$REG_SEL" -le 16 ]; then
-        break
-    else
-        echo -e "${RED}⚠️ Invalid! Enter only number 0-16, no extra characters${NC}"
-    fi
-done
-
+read REG_SEL
+REG_SEL=$(echo "$REG_SEL" | tr -cd '0-9')
 case "$REG_SEL" in
-    0) REGION="us-central1" ;;
     1) REGION="us-east1" ;;
     2) REGION="us-east4" ;;
     3) REGION="us-west1" ;;
@@ -101,8 +86,8 @@ case "$REG_SEL" in
     14) REGION="europe-west3" ;;
     15) REGION="europe-west4" ;;
     16) REGION="australia-southeast1" ;;
+    *) REGION="us-central1" ;;
 esac
-
 echo -e "${GREEN}✅ Selected Region: $REGION${NC}"
 echo ""
 
@@ -112,20 +97,13 @@ echo ""
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}        💳 BILLING MODE${NC}"
 echo -e "${CYAN}=========================================${NC}"
-echo -e "${YELLOW}2 = Instance-Based (Stable / No Throttling) ✅ Recommended${NC}"
-while true; do
-    read -p "Select [1=Request | 2=Instance]: " BILLING_CHOICE
-    BILLING_CHOICE=$(echo "$BILLING_CHOICE" | tr -d '[:space:]')
-    if [[ "$BILLING_CHOICE" == "1" || "$BILLING_CHOICE" == "2" ]]; then
-        break
-    else
-        echo -e "${RED}⚠️ Invalid! Enter only 1 or 2${NC}"
-    fi
-done
-
-BILLING_MODE="request"
-BILLING_FLAGS="--cpu-throttling"
-if [ "$BILLING_CHOICE" = "2" ]; then
+echo -e "1) Request-Based  |  2) Instance-Based ✅ Recommended"
+read BILLING_CHOICE
+BILLING_CHOICE=$(echo "$BILLING_CHOICE" | tr -cd '0-9')
+if [ "$BILLING_CHOICE" = "1" ]; then
+    BILLING_MODE="request"
+    BILLING_FLAGS="--cpu-throttling"
+else
     BILLING_MODE="instance"
     BILLING_FLAGS="--no-cpu-throttling"
 fi
@@ -138,17 +116,9 @@ echo ""
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}        📊 RESOURCE ALLOCATION${NC}"
 echo -e "${CYAN}=========================================${NC}"
-echo -e "${YELLOW}0 = 1Gi / 1vCPU  |  1 = 2Gi / 2vCPU ✅ Balanced |  2 = 4Gi / 4vCPU ✅ Fastest${NC}"
-while true; do
-    read -p "Select [0-2]: " RES_SEL
-    RES_SEL=$(echo "$RES_SEL" | tr -d '[:space:]')
-    if [[ "$RES_SEL" =~ ^[0-2]$ ]]; then
-        break
-    else
-        echo -e "${RED}⚠️ Invalid! Enter only 0, 1 or 2${NC}"
-    fi
-done
-
+echo -e "0 = 1Gi / 1vCPU  |  1 = 2Gi / 2vCPU ✅ Balanced  |  2 = 4Gi / 4vCPU ✅ Fastest"
+read RES_SEL
+RES_SEL=$(echo "$RES_SEL" | tr -cd '0-9')
 if [ "$RES_SEL" = "0" ]; then
     MEMORY="1Gi"; CPU="1"; CONCURRENCY="300"
 elif [ "$RES_SEL" = "2" ]; then
@@ -157,7 +127,7 @@ else
     MEMORY="2Gi"; CPU="2"; CONCURRENCY="800"
 fi
 TIMEOUT="3600"
-echo -e "${GREEN}✅ Resources: $MEMORY RAM | $CPU vCPU | Concurrency: $CONCURRENCY${NC}"
+echo -e "${GREEN}✅ Resources: $MEMORY RAM | $CPU vCPU${NC}"
 echo ""
 
 # =========================================
@@ -166,32 +136,20 @@ echo ""
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}        🚀 INSTANCE SETTINGS${NC}"
 echo -e "${CYAN}=========================================${NC}"
-while true; do
-    read -p "Min Instances [0/1, 1=No Disconnect]: " MIN_INST
-    MIN_INST=$(echo "$MIN_INST" | tr -d '[:space:]')
-    if [[ "$MIN_INST" == "0" || "$MIN_INST" == "1" ]]; then
-        break
-    else
-        echo -e "${RED}⚠️ Invalid! Enter only 0 or 1${NC}"
-    fi
-done
+read -p "Min Instances [0/1, default=1]: " MIN_INST
+MIN_INST=$(echo "$MIN_INST" | tr -cd '0-9')
+if [ "$MIN_INST" != "0" ]; then MIN_INST="1"; fi
 
-while true; do
-    read -p "Max Instances [1/2, 1=Stable]: " MAX_INST
-    MAX_INST=$(echo "$MAX_INST" | tr -d '[:space:]')
-    if [[ "$MAX_INST" == "1" || "$MAX_INST" == "2" ]]; then
-        break
-    else
-        echo -e "${RED}⚠️ Invalid! Enter only 1 or 2${NC}"
-    fi
-done
+read -p "Max Instances [1/2, default=1]: " MAX_INST
+MAX_INST=$(echo "$MAX_INST" | tr -cd '0-9')
+if [ "$MAX_INST" != "2" ]; then MAX_INST="1"; fi
 echo -e "${GREEN}✅ Min: $MIN_INST | Max: $MAX_INST${NC}"
 echo ""
 
 cd "$BUILD_DIR" || exit 1
 
 # =========================
-# ✅ XRAY CONFIG (SYNCED)
+# ✅ XRAY CONFIG
 # =========================
 cat > config.json <<'EOF'
 {
@@ -263,7 +221,7 @@ cat > config.json <<'EOF'
 EOF
 
 # =========================
-# ✅ NGINX CONFIG (SYNCED)
+# ✅ NGINX CONFIG
 # =========================
 cat > nginx.conf <<'EOF'
 worker_processes auto;
@@ -318,22 +276,10 @@ http {
             add_header Content-Type text/plain;
         }
 
-        location / {
-            proxy_pass https://www.google.com;
-            proxy_set_header Host www.google.com;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_ssl_server_name on;
-            proxy_ssl_protocols TLSv1.2 TLSv1.3;
-        }
-
         location /tr-ConFig {
             proxy_pass http://127.0.0.1:10001;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection $connection_upgrade;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_buffering off;
         }
 
@@ -341,9 +287,6 @@ http {
             proxy_pass http://127.0.0.1:10002;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection $connection_upgrade;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_buffering off;
         }
     }
@@ -405,22 +348,10 @@ echo -e "${GREEN}✅ 🎉 DEPLOYMENT SUCCESS! 🎉${NC}"
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}📍 Region:${NC} $REGION"
 echo -e "${GREEN}⚙️ Resources:${NC} $MEMORY RAM | $CPU vCPU"
-echo -e "${GREEN}🔗 Short Link:${NC} https://$DOMAIN"
+echo -e "${GREEN}💳 Billing:${NC} $BILLING_MODE"
 echo -e "${GREEN}🔗 Full Link:${NC} https://$FULL_DOMAIN"
 echo -e "${GREEN}💚 Health Check:${NC} https://$FULL_DOMAIN/health"
-echo -e "${GREEN}Port:${NC} 443"
 echo -e "\n${YELLOW}--- CLIENT CONFIGS ---${NC}"
-echo -e "${GREEN}🔹 TROJAN + WS + TLS${NC}"
-echo "   Address: $FULL_DOMAIN"
-echo "   Port: 443"
-echo "   Password: kiana-2.5"
-echo "   Path: /tr-ConFig?ed=2560"
-echo "   SNI: $FULL_DOMAIN"
-echo -e "\n${GREEN}🔹 VLESS + WS + TLS${NC}"
-echo "   Address: $FULL_DOMAIN"
-echo "   Port: 443"
-echo "   UUID: a1b2c3d4-5678-40ef-98ab-cdef01234567"
-echo "   Path: /vl-ConFig?ed=2560"
-echo "   SNI: $FULL_DOMAIN"
+echo -e "${GREEN}🔹 TROJAN:${NC} $FULL_DOMAIN:443 | kiana-2.5 | /tr-ConFig?ed=2560"
+echo -e "${GREEN}🔹 VLESS:${NC} $FULL_DOMAIN:443 | a1b2c3d4-5678-40ef-98ab-cdef01234567 | /vl-ConFig?ed=2560"
 echo -e "${CYAN}=========================================${NC}"
-echo -e "${YELLOW}💡 XRAY + NGINX 3600s SYNCED | NO TIMEOUT | LIGHTWEIGHT${NC}"
