@@ -2,10 +2,12 @@
 set -euo pipefail
 
 # =========================================
-# 🚀 KIANA-2.6.1 FINAL FIXED EDITION
-# ✅ ALL OPTIONS WORK: REGION / MEMORY / CPU / BILLING / INSTANCES
-# ✅ NO AUTO-SELECT, NO MISSING SETTINGS
-# ✅ EXPANDED REGIONS + SYNCED CONFIGS
+# 🚀 KIANA-2.6.3 FINAL | MANY REGIONS + NO MORE INVALID ERROR
+# ✅ 17 REGIONS TO CHOOSE
+# ✅ ROBUST INPUT HANDLING FOR MOBILE KEYBOARD
+# ✅ ALL SETTINGS FULLY WORKING
+# ✅ SYNCED TIMEOUT / LIGHTWEIGHT / NO OVERHEAT
+# ✅ CREDS: Pass=kiana-2.5 | UUID=a1b2c3d4-5678-40ef-98ab-cdef01234567
 # =========================================
 
 GREEN='\033[1;32m'
@@ -26,40 +28,43 @@ clear
 echo ""
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}     TROJAN + VLESS WS/TLS${NC}"
-echo -e "${GREEN}     KIANA-2.6.1 FULL FIXED EDITION${NC}"
+echo -e "${GREEN}     KIANA-2.6.3 FINAL EDITION${NC}"
 echo -e "${CYAN}=========================================${NC}"
 echo ""
 
 if [ -z "$PROJECT_ID" ]; then
-    echo -e "${RED}ERROR: No GCP Project found!${NC}"
-    echo -e "Run first: gcloud config set project YOUR_PROJECT_ID"
+    echo -e "${RED}❌ ERROR: No GCP Project found!${NC}"
+    echo -e "👉 Run first: gcloud config set project YOUR_PROJECT_ID"
     exit 1
 fi
 
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com --project="$PROJECT_ID" --quiet
 
 # =========================================
-# 🌏 REGION SELECTION (WORKING 100%)
+# 🌏 FULL REGION LIST (17 OPTIONS)
 # =========================================
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}        📌 SELECT DEPLOYMENT REGION${NC}"
 echo -e "${CYAN}=========================================${NC}"
-echo -e "${YELLOW}Pili lang ang numero nga gusto nimo:${NC}"
+echo -e "${YELLOW}👉 Type NUMBER only, no extra spaces/letters${NC}"
 echo ""
+echo -e "--- 🇺🇸 UNITED STATES ---"
 echo -e "0) us-central1      (Iowa, USA)       | Default / Stable"
 echo -e "1) us-east1         (South Carolina)"
 echo -e "2) us-east4         (North Virginia)"
 echo -e "3) us-west1         (Oregon, USA)"
 echo -e "4) us-west2         (Los Angeles, USA)"
 echo ""
-echo -e "5) asia-southeast1  (Singapore)       | ✅ FASTEST FOR PH 🇵🇭"
+echo -e "--- 🇵🇭🇸🇬🇹🇼 ASIA PACIFIC (FASTEST FOR PH) ---"
+echo -e "5) asia-southeast1  (Singapore)       | ✅ #1 Fastest"
 echo -e "6) asia-southeast2  (Jakarta, Indonesia)"
-echo -e "7) asia-east1       (Taiwan)          | ✅ VERY FAST FOR PH 🇵🇭"
+echo -e "7) asia-east1       (Taiwan)          | ✅ Very Fast"
 echo -e "8) asia-east2       (Hong Kong)"
 echo -e "9) asia-northeast1  (Tokyo, Japan)"
 echo -e "10) asia-northeast2 (Osaka, Japan)"
-echo -e "11) asia-northeast3 (Seoul, Korea)"
+echo -e "11) asia-northeast3 (Seoul, South Korea)"
 echo ""
+echo -e "--- 🇪🇺🌏 OTHERS ---"
 echo -e "12) europe-west1    (Belgium)"
 echo -e "13) europe-west2    (London, UK)"
 echo -e "14) europe-west3    (Frankfurt, Germany)"
@@ -67,13 +72,14 @@ echo -e "15) europe-west4    (Netherlands)"
 echo -e "16) australia-southeast1 (Sydney, Australia)"
 echo ""
 
-# ✅ DIRI NA MAG-AUTO — mangutana gyud!
+# ✅ FIXED: TRIM ALL SPACES + STRICT VALIDATION
 while true; do
     read -p "Enter Region Number [0-16]: " REG_SEL
+    REG_SEL=$(echo "$REG_SEL" | tr -d '[:space:]')
     if [[ "$REG_SEL" =~ ^[0-9]+$ ]] && [ "$REG_SEL" -ge 0 ] && [ "$REG_SEL" -le 16 ]; then
         break
     else
-        echo -e "${RED}❌ Invalid! Pili lang sa 0 hangtod 16${NC}"
+        echo -e "${RED}⚠️ Invalid! Enter only number 0-16, no extra characters${NC}"
     fi
 done
 
@@ -101,87 +107,82 @@ echo -e "${GREEN}✅ Selected Region: $REGION${NC}"
 echo ""
 
 # =========================================
-# 💰 BILLING MODE SELECTION
+# 💰 BILLING MODE
 # =========================================
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}        💳 BILLING MODE${NC}"
 echo -e "${CYAN}=========================================${NC}"
-echo -e "${YELLOW}2 = Instance-Based (Stable / No Throttling)${NC}"
-echo -e "1) Request-Based  |  2) Instance-Based"
+echo -e "${YELLOW}2 = Instance-Based (Stable / No Throttling) ✅ Recommended${NC}"
 while true; do
-    read -p "Select [1-2]: " BILLING_CHOICE
-    if [[ "$BILLING_CHOICE" == "1" ]] || [[ "$BILLING_CHOICE" == "2" ]]; then
+    read -p "Select [1=Request | 2=Instance]: " BILLING_CHOICE
+    BILLING_CHOICE=$(echo "$BILLING_CHOICE" | tr -d '[:space:]')
+    if [[ "$BILLING_CHOICE" == "1" || "$BILLING_CHOICE" == "2" ]]; then
         break
     else
-        echo -e "${RED}❌ Enter 1 or 2 lang${NC}"
+        echo -e "${RED}⚠️ Invalid! Enter only 1 or 2${NC}"
     fi
 done
 
-if [ "$BILLING_CHOICE" = "1" ]; then
-    BILLING_MODE="request"
-else
+BILLING_MODE="request"
+BILLING_FLAGS="--cpu-throttling"
+if [ "$BILLING_CHOICE" = "2" ]; then
     BILLING_MODE="instance"
+    BILLING_FLAGS="--no-cpu-throttling"
 fi
 echo -e "${GREEN}✅ Billing Mode: $BILLING_MODE${NC}"
 echo ""
 
 # =========================================
-# ⚙️ MEMORY & vCPU SELECTION
+# ⚙️ MEMORY & vCPU
 # =========================================
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}        📊 RESOURCE ALLOCATION${NC}"
 echo -e "${CYAN}=========================================${NC}"
-echo -e "${YELLOW}0 = 1Gi / 1vCPU  |  1 = 2Gi / 2vCPU  |  2 = 4Gi / 4vCPU${NC}"
-echo -e "${YELLOW}✅ RECOMMENDED: 1 (Balanced) or 2 (Fastest)${NC}"
+echo -e "${YELLOW}0 = 1Gi / 1vCPU  |  1 = 2Gi / 2vCPU ✅ Balanced |  2 = 4Gi / 4vCPU ✅ Fastest${NC}"
 while true; do
     read -p "Select [0-2]: " RES_SEL
+    RES_SEL=$(echo "$RES_SEL" | tr -d '[:space:]')
     if [[ "$RES_SEL" =~ ^[0-2]$ ]]; then
         break
     else
-        echo -e "${RED}❌ Enter 0, 1 or 2 lang${NC}"
+        echo -e "${RED}⚠️ Invalid! Enter only 0, 1 or 2${NC}"
     fi
 done
 
 if [ "$RES_SEL" = "0" ]; then
-    MEMORY="1Gi"
-    CPU="1"
-    CONCURRENCY="300"
+    MEMORY="1Gi"; CPU="1"; CONCURRENCY="300"
 elif [ "$RES_SEL" = "2" ]; then
-    MEMORY="4Gi"
-    CPU="4"
-    CONCURRENCY="800"
+    MEMORY="4Gi"; CPU="4"; CONCURRENCY="800"
 else
-    MEMORY="2Gi"
-    CPU="2"
-    CONCURRENCY="800"
+    MEMORY="2Gi"; CPU="2"; CONCURRENCY="800"
 fi
 TIMEOUT="3600"
-echo -e "${GREEN✅ Memory: $MEMORY | CPU: $CPU | Concurrency: $CONCURRENCY${NC}"
+echo -e "${GREEN}✅ Resources: $MEMORY RAM | $CPU vCPU | Concurrency: $CONCURRENCY${NC}"
 echo ""
 
 # =========================================
-# 🚀 INSTANCES SETTINGS
+# 🚀 INSTANCE SETTINGS
 # =========================================
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}        🚀 INSTANCE SETTINGS${NC}"
 echo -e "${CYAN}=========================================${NC}"
-echo -e "${YELLOW}Min Instances = 1 = No Disconnect / Fast Start${NC}"
 while true; do
-    read -p "Min Instances [0/1]: " MIN_INST
-    if [[ "$MIN_INST" == "0" ]] || [[ "$MIN_INST" == "1" ]]; then
+    read -p "Min Instances [0/1, 1=No Disconnect]: " MIN_INST
+    MIN_INST=$(echo "$MIN_INST" | tr -d '[:space:]')
+    if [[ "$MIN_INST" == "0" || "$MIN_INST" == "1" ]]; then
         break
     else
-        echo -e "${RED}❌ Enter 0 or 1 lang${NC}"
+        echo -e "${RED}⚠️ Invalid! Enter only 0 or 1${NC}"
     fi
 done
 
-echo -e "${YELLOW}Max Instances = 1 = Stable / No Extra Cost${NC}"
 while true; do
-    read -p "Max Instances [1/2]: " MAX_INST
-    if [[ "$MAX_INST" == "1" ]] || [[ "$MAX_INST" == "2" ]]; then
+    read -p "Max Instances [1/2, 1=Stable]: " MAX_INST
+    MAX_INST=$(echo "$MAX_INST" | tr -d '[:space:]')
+    if [[ "$MAX_INST" == "1" || "$MAX_INST" == "2" ]]; then
         break
     else
-        echo -e "${RED}❌ Enter 1 or 2 lang${NC}"
+        echo -e "${RED}⚠️ Invalid! Enter only 1 or 2${NC}"
     fi
 done
 echo -e "${GREEN}✅ Min: $MIN_INST | Max: $MAX_INST${NC}"
@@ -190,7 +191,7 @@ echo ""
 cd "$BUILD_DIR" || exit 1
 
 # =========================
-# ✅ XRAY CONFIG
+# ✅ XRAY CONFIG (SYNCED)
 # =========================
 cat > config.json <<'EOF'
 {
@@ -262,7 +263,7 @@ cat > config.json <<'EOF'
 EOF
 
 # =========================
-# ✅ NGINX CONFIG
+# ✅ NGINX CONFIG (SYNCED)
 # =========================
 cat > nginx.conf <<'EOF'
 worker_processes auto;
@@ -384,8 +385,6 @@ echo -e "${GREEN}          🔨 BUILDING IMAGE${NC}"
 echo -e "${CYAN}=========================================${NC}"
 gcloud builds submit --project="$PROJECT_ID" --tag gcr.io/$PROJECT_ID/$CLOUD_RUN_SERVICE_NAME . --quiet
 
-BILLING_FLAGS=$([ "$BILLING_MODE" = "instance" ] && echo "--no-cpu-throttling" || echo "--cpu-throttling")
-
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}         🚀 DEPLOYING TO CLOUD RUN${NC}"
 echo -e "${CYAN}=========================================${NC}"
@@ -393,24 +392,24 @@ gcloud run deploy $CLOUD_RUN_SERVICE_NAME \
   --image gcr.io/$PROJECT_ID/$CLOUD_RUN_SERVICE_NAME \
   --project="$PROJECT_ID" --platform managed --region "$REGION" --allow-unauthenticated \
   --port 8080 --memory $MEMORY --cpu $CPU --concurrency $CONCURRENCY \
-  --timeout $TIMEOUT --min-instances=$MIN_INST --max-instances=$MAX_INST \
-  --execution-environment=gen2 --quiet
+  --timeout $TIMEOUT --min-instances $MIN_INST --max-instances $MAX_INST \
+  --execution-environment gen2 --cpu-boost $BILLING_FLAGS --quiet
+
 # GET LINKS
 CLOUD_RUN_URL=$(gcloud run services describe $CLOUD_RUN_SERVICE_NAME --project="$PROJECT_ID" --region="$REGION" --format='value(status.url)')
 DOMAIN=$(echo "$CLOUD_RUN_URL" | sed 's|https://||')
 FULL_DOMAIN=$(gcloud run services describe $CLOUD_RUN_SERVICE_NAME --project="$PROJECT_ID" --region="$REGION" --format='value(status.addresses[0].url)' | sed 's|https://||')
 
 echo -e "\n${CYAN}=========================================${NC}"
-echo -e "${GREEN}✅ 🎉 DEPLOYMENT SUCCESSFUL! 🎉${NC}"
+echo -e "${GREEN}✅ 🎉 DEPLOYMENT SUCCESS! 🎉${NC}"
 echo -e "${CYAN}=========================================${NC}"
-echo -e "${GREEN}📌 REGION:${NC} $REGION"
-echo -e "${GREEN}⚙️ RESOURCES:${NC} $MEMORY / $CPU vCPU"
-echo -e "${GREEN}💳 BILLING:${NC} $BILLING_MODE"
-echo -e "${GREEN}🔗 SHORT LINK:${NC} https://$DOMAIN"
-echo -e "${GREEN}🔗 FULL LINK:${NC} https://$FULL_DOMAIN"
-echo -e "${GREEN}💚 HEALTH CHECK:${NC} https://$FULL_DOMAIN/health"
-echo -e "${GREEN}PORT:${NC} 443"
-echo -e "\n${YELLOW}--- 📋 CLIENT CONFIGS ---${NC}"
+echo -e "${GREEN}📍 Region:${NC} $REGION"
+echo -e "${GREEN}⚙️ Resources:${NC} $MEMORY RAM | $CPU vCPU"
+echo -e "${GREEN}🔗 Short Link:${NC} https://$DOMAIN"
+echo -e "${GREEN}🔗 Full Link:${NC} https://$FULL_DOMAIN"
+echo -e "${GREEN}💚 Health Check:${NC} https://$FULL_DOMAIN/health"
+echo -e "${GREEN}Port:${NC} 443"
+echo -e "\n${YELLOW}--- CLIENT CONFIGS ---${NC}"
 echo -e "${GREEN}🔹 TROJAN + WS + TLS${NC}"
 echo "   Address: $FULL_DOMAIN"
 echo "   Port: 443"
@@ -424,4 +423,4 @@ echo "   UUID: a1b2c3d4-5678-40ef-98ab-cdef01234567"
 echo "   Path: /vl-ConFig?ed=2560"
 echo "   SNI: $FULL_DOMAIN"
 echo -e "${CYAN}=========================================${NC}"
-echo -e "${YELLOW}💡 XRAY + NGINX 3600s SYNCED | LIGHTWEIGHT | NO TIMEOUT${NC}"
+echo -e "${YELLOW}💡 XRAY + NGINX 3600s SYNCED | NO TIMEOUT | LIGHTWEIGHT${NC}"
