@@ -2,13 +2,11 @@
 set -euo pipefail
 
 # =========================================
-# 🚀 KIANA-2.5 FINAL SYNCED EDITION
+# 🚀 KIANA-2.6 FINAL SYNCED EDITION + EXPANDED REGIONS
 # ✅ XRAY + NGINX TIMEOUT SYNCED (3600s) — NO TIMEOUT ON SPEEDTEST
-# ✅ HEALTH CHECK + DUAL LINKS DISPLAYED
-# ✅ NO PHONE OVERHEATING | LIGHTWEIGHT
-# ✅ SMOOTH STREAMING + FASTER DOWNLOAD
-# ✅ RECOMMENDED: 4Gi RAM + 4vCPU = BEST PERFORMANCE
-# ✅ FIXED CREDS: Pass=kiana-2 | UUID=a1b2c3d4-5678-40ef-98ab-cdef01234567
+# ✅ EXPANDED REGION MENU + DUAL LINKS + HEALTH CHECK
+# ✅ NO PHONE OVERHEATING | LIGHTWEIGHT | STABLE
+# ✅ FIXED CREDS: Pass=kiana-2.5 | UUID=a1b2c3d4-5678-40ef-98ab-cdef01234567
 # =========================================
 
 GREEN='\033[1;32m'
@@ -18,7 +16,6 @@ CYAN='\033[1;36m'
 NC='\033[0m'
 
 PROJECT_ID="$(gcloud config get-value project 2>/dev/null)"
-REGION="${1:-us-central1}"
 RAND=$(openssl rand -hex 3 2>/dev/null)
 CLOUD_RUN_SERVICE_NAME="xray-balanced-$RAND"
 BUILD_DIR=$(mktemp -d)
@@ -30,10 +27,8 @@ clear
 echo ""
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}     TROJAN + VLESS WS/TLS${NC}"
-echo -e "${GREEN}     FINAL SYNCED VERSION${NC}"
+echo -e "${GREEN}     EXPANDED REGION EDITION${NC}"
 echo -e "${CYAN}=========================================${NC}"
-echo ""
-echo -e "${GREEN}✅ Region:${NC} $REGION"
 echo ""
 
 if [ -z "$PROJECT_ID" ]; then
@@ -43,6 +38,66 @@ if [ -z "$PROJECT_ID" ]; then
 fi
 
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com --project="$PROJECT_ID" --quiet
+
+# =========================================
+# 🌏 EXPANDED REGION SELECTION MENU
+# =========================================
+echo -e "${CYAN}=========================================${NC}"
+echo -e "${GREEN}        SELECT DEPLOYMENT REGION${NC}"
+echo -e "${CYAN}=========================================${NC}"
+echo -e "${YELLOW}NOTE: Choose only regions available in your Google Cloud / Qwiklabs account${NC}"
+echo ""
+echo -e "--- 🇺🇸 UNITED STATES / GLOBAL ---"
+echo -e "0) us-central1      (Iowa, USA)       | Default / Most Stable"
+echo -e "1) us-east1         (South Carolina)"
+echo -e "2) us-east4         (North Virginia)"
+echo -e "3) us-west1         (Oregon, USA)"
+echo -e "4) us-west2         (Los Angeles, USA)"
+echo ""
+echo -e "--- 🇵🇭🇸🇬🇹🇼 ASIA PACIFIC (FASTEST FOR PH) ---"
+echo -e "5) asia-southeast1  (Singapore)       | #1 Fastest for SE Asia"
+echo -e "6) asia-southeast2  (Jakarta, Indonesia)"
+echo -e "7) asia-east1       (Taiwan)          | Very Fast for PH"
+echo -e "8) asia-east2       (Hong Kong)"
+echo -e "9) asia-northeast1  (Tokyo, Japan)"
+echo -e "10) asia-northeast2 (Osaka, Japan)"
+echo -e "11) asia-northeast3 (Seoul, South Korea)"
+echo ""
+echo -e "--- 🇪🇺 EUROPE / OTHERS ---"
+echo -e "12) europe-west1    (Belgium)"
+echo -e "13) europe-west2    (London, UK)"
+echo -e "14) europe-west3    (Frankfurt, Germany)"
+echo -e "15) europe-west4    (Netherlands)"
+echo -e "16) australia-southeast1 (Sydney, Australia)"
+echo ""
+
+while true; do
+    read -p "Select Region [0-16, press Enter for default=0]: " REG_SEL
+    REG_SEL=${REG_SEL:-0}
+    case "$REG_SEL" in
+        0) REGION="us-central1"; break ;;
+        1) REGION="us-east1"; break ;;
+        2) REGION="us-east4"; break ;;
+        3) REGION="us-west1"; break ;;
+        4) REGION="us-west2"; break ;;
+        5) REGION="asia-southeast1"; break ;;
+        6) REGION="asia-southeast2"; break ;;
+        7) REGION="asia-east1"; break ;;
+        8) REGION="asia-east2"; break ;;
+        9) REGION="asia-northeast1"; break ;;
+        10) REGION="asia-northeast2"; break ;;
+        11) REGION="asia-northeast3"; break ;;
+        12) REGION="europe-west1"; break ;;
+        13) REGION="europe-west2"; break ;;
+        14) REGION="europe-west3"; break ;;
+        15) REGION="europe-west4"; break ;;
+        16) REGION="australia-southeast1"; break ;;
+        *) echo -e "${RED}Invalid input! Enter a number from 0 to 16.${NC}" ;;
+    esac
+done
+
+echo -e "${GREEN}✅ Selected Region:${NC} $REGION"
+echo ""
 
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}          BILLING MODE${NC}"
@@ -61,8 +116,8 @@ done
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}      RESOURCE ALLOCATION${NC}"
 echo -e "${CYAN}=========================================${NC}"
-echo -e "${YELLOW}✅ RECOMMENDED: 4Gi RAM + 4vCPU = BEST PERFORMANCE${NC}"
-echo -e "${YELLOW}Balanced: 2Gi RAM + 2vCPU | Light: 1Gi RAM + 1vCPU${NC}"
+echo -e "${YELLOW}BALANCED: 2Gi RAM + 2vCPU | LIGHT: 1Gi RAM + 1vCPU${NC}"
+echo -e "${YELLOW}BEST PERFORMANCE: 4Gi RAM + 4vCPU${NC}"
 while true; do
     read -p "Memory [1=1Gi|2=2Gi|3=4Gi]: " MEM
     case $MEM in
@@ -102,7 +157,7 @@ done
 cd "$BUILD_DIR" || exit 1
 
 # =========================
-# ✅ XRAY POLICY UPDATED: connIdle=3600 (Same in Nginx)
+# ✅ XRAY POLICY: 3600s IDLE + LIGHTWEIGHT
 # =========================
 cat > config.json <<'EOF'
 {
@@ -174,7 +229,7 @@ cat > config.json <<'EOF'
 EOF
 
 # =========================
-# ✅ NGINX: TIMEOUT=3600s + HEALTH CHECK
+# ✅ NGINX: SYNCED PATHS + 3600s TIMEOUT + HEALTH CHECK
 # =========================
 cat > nginx.conf <<'EOF'
 worker_processes auto;
@@ -308,37 +363,35 @@ gcloud run deploy $CLOUD_RUN_SERVICE_NAME \
   --timeout $TIMEOUT --min-instances $MIN_INST --max-instances $MAX_INST \
   --execution-environment gen2 --cpu-boost $BILLING_FLAGS --quiet
 
-# Get 2 Links
+# Get Dual Links
 CLOUD_RUN_URL=$(gcloud run services describe $CLOUD_RUN_SERVICE_NAME --project="$PROJECT_ID" --region="$REGION" --format='value(status.url)')
 DOMAIN=$(echo "$CLOUD_RUN_URL" | sed 's|https://||')
 FULL_DOMAIN=$(gcloud run services describe $CLOUD_RUN_SERVICE_NAME --project="$PROJECT_ID" --region="$REGION" --format='value(status.addresses[0].url)' | sed 's|https://||')
 
 echo -e "\n${CYAN}=========================================${NC}"
-echo -e "${GREEN}✅ FINAL VERSION — NO TIMEOUT + BEST PERFORMANCE${NC}"
+echo -e "${GREEN}✅ DEPLOYMENT SUCCESS!${NC}"
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${GREEN}Service:${NC} $CLOUD_RUN_SERVICE_NAME"
 echo -e "${GREEN}🔗 SHORT LINK:${NC} https://$DOMAIN"
 echo -e "${GREEN}🔗 FULL LINK:${NC} https://$FULL_DOMAIN"
 echo -e "${GREEN}💚 HEALTH CHECK:${NC} https://$FULL_DOMAIN/health"
-echo -e "${GREEN}🌐 DOMAIN (Same Working):${NC}"
-echo -e "$DOMAIN"
-echo -e "$FULL_DOMAIN"
 echo -e "${GREEN}Port:${NC} 443"
 echo -e "\n${YELLOW}--- RECOMMENDED SETTINGS ---${NC}"
+echo -e "${YELLOW}👉 FASTEST FOR PH: Singapore(5) / Taiwan(7)${NC}"
 echo -e "${YELLOW}👉 BALANCED & SAFE: 2Gi RAM + 2vCPU + Instance-Based${NC}"
 echo -e "${YELLOW}👉 BEST PERFORMANCE: 4Gi RAM + 4vCPU + Instance-Based${NC}"
 echo -e "\n${YELLOW}--- CLIENT CONFIGS ---${NC}"
 echo -e "${GREEN}🔹 TROJAN + WS + TLS${NC}"
 echo "   Address: $FULL_DOMAIN"
 echo "   Port: 443"
-echo "   Password: kiana-2"
-echo "   Path: /tr-ws"
+echo "   Password: kiana-2.5"
+echo "   Path: /tr-ConFig?ed=2560"
 echo "   SNI: $FULL_DOMAIN"
 echo -e "\n${GREEN}🔹 VLESS + WS + TLS${NC}"
 echo "   Address: $FULL_DOMAIN"
 echo "   Port: 443"
 echo "   UUID: a1b2c3d4-5678-40ef-98ab-cdef01234567"
-echo "   Path: /vl-ws"
+echo "   Path: /vl-ConFig?ed=2560"
 echo "   SNI: $FULL_DOMAIN"
 echo -e "${CYAN}=========================================${NC}"
 echo -e "${YELLOW}💡 XRAY + NGINX TIMEOUT SYNCED | LIGHTWEIGHT | NO DISCONNECT${NC}"
