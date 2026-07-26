@@ -393,9 +393,8 @@ gcloud run deploy $CLOUD_RUN_SERVICE_NAME \
   --image gcr.io/$PROJECT_ID/$CLOUD_RUN_SERVICE_NAME \
   --project="$PROJECT_ID" --platform managed --region "$REGION" --allow-unauthenticated \
   --port 8080 --memory $MEMORY --cpu $CPU --concurrency $CONCURRENCY \
-  --timeout $TIMEOUT --min-instances $MIN_INST --max-instances $MAX_INST \
-  --execution-environment gen2 --cpu-boost $BILLING_FLAGS --quiet
-
+  --timeout $TIMEOUT --min-instances=$MIN_INST --max-instances=$MAX_INST \
+  --execution-environment=gen2 --quiet
 # GET LINKS
 CLOUD_RUN_URL=$(gcloud run services describe $CLOUD_RUN_SERVICE_NAME --project="$PROJECT_ID" --region="$REGION" --format='value(status.url)')
 DOMAIN=$(echo "$CLOUD_RUN_URL" | sed 's|https://||')
