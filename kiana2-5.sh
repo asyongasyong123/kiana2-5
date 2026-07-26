@@ -308,7 +308,7 @@ gcloud run deploy $CLOUD_RUN_SERVICE_NAME \
   --timeout $TIMEOUT --min-instances $MIN_INST --max-instances $MAX_INST \
   --execution-environment gen2 --cpu-boost $BILLING_FLAGS --quiet
 
-# Kuha ang duha ka link
+# Get 2 Links
 CLOUD_RUN_URL=$(gcloud run services describe $CLOUD_RUN_SERVICE_NAME --project="$PROJECT_ID" --region="$REGION" --format='value(status.url)')
 DOMAIN=$(echo "$CLOUD_RUN_URL" | sed 's|https://||')
 FULL_DOMAIN=$(gcloud run services describe $CLOUD_RUN_SERVICE_NAME --project="$PROJECT_ID" --region="$REGION" --format='value(status.addresses[0].url)' | sed 's|https://||')
