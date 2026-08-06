@@ -31,7 +31,7 @@ echo -e "${GREEN}            KIANA-2.5 GCP DEPLOYER BY Con Fig${NC}"
 echo -e "${GREEN}         TROJAN & VLESS + WS + TLS PROTOCOLS ONLY${NC}"
 echo -e "${GREEN}       SIMPLE CODED,LIGHTWEIGHT XRAY.JSON & NGINX.CONF${NC}"
 echo -e "${GREEN}    MANUAL SET UP FOR REGION,INSTANCES,BILLING,MEMORY & vCPU${NC}"
-echo -e "${CYAN}====================================================÷÷÷÷÷÷÷÷÷===${NC}"
+echo -e "${CYAN}================================================================${NC}"
 echo ""
 
 if [ -z "$PROJECT_ID" ]; then
